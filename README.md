@@ -27,8 +27,7 @@ No celular aparecem botões na tela. Tem também uma bolinha vermelha pela sala 
 2. *"Pareceu um bicho de pelúcia, ele é um cachorro de verdade. Aprimore para que se pareça com um cachorro Shih Tzu de verdade."*
 3. *"Deixe ele um pouco mais comprido e gordinho e retire um pouco dos cabelos dos olhos."*
 4. *"Me ajude a animar e criar um jogo básico com este modelo, onde o cachorro anda no cenário com as teclas de setas do teclado e late com a letra L."*
-5. *"É possível publicar no GitHub e que funcione na web, como na Vercel?"*
-6. *"Gere um README.md com os prompts e o passo a passo."*
+
 
 ---
 
