@@ -16,7 +16,7 @@ Um joguinho 3D no navegador estrelado pelo **Lui**, um Shih Tzu preto e branco d
 | ← / → | virar |
 | **L** | latir (com som e balãozinho) |
 | **A** | amar: aparece "Lui ❤️ [seu nome]" |
-| **D** | dormir: ele deita, fecha os olhos e sonha com um frango |
+| **D** | dormir / acordar: ele deita, fecha os olhos e sonha com um frango |
 | **C** | ver o Lui de frente ou de trás |
 
 No celular aparecem botões na tela. Tem também uma bolinha vermelha pela sala para ele empurrar.

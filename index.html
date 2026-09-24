@@ -249,7 +249,7 @@
   <span class="group"><kbd>←</kbd><kbd>→</kbd> virar</span>
   <span class="group"><kbd class="l">L</kbd> latir</span>
   <span class="group"><kbd class="a">A</kbd> amar</span>
-  <span class="group"><kbd class="d">D</kbd> dormir</span>
+  <span class="group"><kbd class="d">D</kbd> <span id="dLabel">dormir</span></span>
   <span class="group"><kbd>C</kbd> câmera</span>
 </div>
 
@@ -650,7 +650,8 @@
       POSE_SONO.forEach(([nome, ang]) => {
         const b = root.getObjectByName(nome);
         if (!b) return;
-        ossosSono.push({ b, alvo: b.quaternion.clone().multiply(new THREE.Quaternion().setFromAxisAngle(eixoX, ang)) });
+        const repouso = b.quaternion.clone();
+        ossosSono.push({ b, repouso, alvo: repouso.clone().multiply(new THREE.Quaternion().setFromAxisAngle(eixoX, ang)) });
       });
 
       mixer = new THREE.AnimationMixer(root);
@@ -803,14 +804,26 @@
 
   // ---------- dormir ----------
   const sonho = document.getElementById("sonho");
-  let sonhoNaTela = false;
+  const sleepBtn = document.getElementById("sleepBtn");
+  const dLabel = document.getElementById("dLabel");
+  let sonhoNaTela = false, sonoNoHud = false;
+
+  // a dica e o botão mostram a ação, não o estado (como o botão da câmera)
+  function atualizaHudSono() {
+    if (sonoNoHud === dormindo) return;
+    sonoNoHud = dormindo;
+    dLabel.textContent = dormindo ? "acordar" : "dormir";
+    sleepBtn.textContent = dormindo ? "⏰" : "💤";
+    sleepBtn.setAttribute("aria-label", dormindo ? "Acordar" : "Dormir");
+  }
 
   function dormir() {
     if (!loaded || asking) return;
     dormindo = !dormindo;
     if (dormindo && bubbleTimer > 0) { bubbleTimer = 0; bubbleKind = ""; bubble.classList.remove("on"); }
+    atualizaHudSono();
   }
-  function acorda() { dormindo = false; }
+  function acorda() { dormindo = false; atualizaHudSono(); }
 
   function posicionaSonho() {
     if (!headBone) return;
@@ -855,7 +868,6 @@
   const loveBtn = document.getElementById("loveBtn");
   loveBtn.addEventListener("pointerdown", (e) => { e.preventDefault(); loveBtn.classList.add("active"); acorda(); amar(); });
   ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => loveBtn.addEventListener(ev, () => loveBtn.classList.remove("active")));
-  const sleepBtn = document.getElementById("sleepBtn");
   sleepBtn.addEventListener("pointerdown", (e) => { e.preventDefault(); sleepBtn.classList.add("active"); dormir(); });
   ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => sleepBtn.addEventListener(ev, () => sleepBtn.classList.remove("active")));
 
@@ -936,6 +948,9 @@
       actions.idle.setEffectiveWeight((1 - moving) * acordado);
       const ts = Math.max(Math.abs(state.speed) / WALK_SPEED, Math.abs(state.turn) / TURN_SPEED * 0.7) * 1.25;
       actions.walk.timeScale = state.speed < -0.05 ? -ts : Math.max(ts, 0.2);
+      // pescoço e cabeça só aparecem no clipe Latir; Andar/Parado não os escrevem.
+      // Sem devolver ao repouso aqui, eles ficariam presos na pose de dormir.
+      for (let i = 0; i < ossosSono.length; i++) ossosSono[i].b.quaternion.copy(ossosSono[i].repouso);
       mixer.update(dt);
 
       // a pose de dormir é aplicada DEPOIS do mixer, senão ele sobrescreve

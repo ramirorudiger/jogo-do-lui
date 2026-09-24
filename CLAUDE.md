@@ -114,11 +114,14 @@ Arrow keys move; letters are actions — `L` bark, `A` love (`amar()`, repeats t
 The GLB carries no lying-down clip and re-exporting one is blocked by the `_FURLEN` gap above, so the pose is applied **procedurally**, and the order in `tick()` is the whole trick:
 
 ```js
-mixer.update(dt);                                   // mixer writes every bone
-for (const o of ossosSono) o.b.quaternion.slerp(o.alvo, sono);   // then we overwrite
+for (const o of ossosSono) o.b.quaternion.copy(o.repouso);       // 1. back to rest
+mixer.update(dt);                                                // 2. mixer has its say
+for (const o of ossosSono) o.b.quaternion.slerp(o.alvo, sono);   // 3. then we overwrite
 ```
 
-Posing before `mixer.update()` does nothing — the mixer restores bones toward their bind value whenever the cumulative action weight is below 1. `sono` eases 0→1 and doubles as the slerp factor, so the dog folds into the pose and back out; walk/idle weights are scaled by `1 - sono` and movement speed with them.
+All three steps are load-bearing. Posing before step 2 does nothing for the bones the mixer drives — it restores them toward their bind value whenever cumulative action weight is below 1. But step 1 is what keeps the dog from getting stuck: **`pescoco` and `cabeca` appear only in the `Latir` clip** (`prepareClip` strips them from `Andar`/`Parado`), so no action writes them while walking or idling. Without the reset, the slerp — which only ever moves *toward* the target — left the head permanently down after waking. Any future bone posed outside an animation needs the same treatment.
+
+`sono` eases 0→1 and doubles as the slerp factor, so the dog folds into the pose and back out; walk/idle weights are scaled by `1 - sono` and movement speed with them.
 
 Targets are built once at load as `restQuaternion × axisAngle(localX, angle)` — bone-local, matching how the Blender script poses bones. The axis convention was measured, not guessed: **bone local +Y runs head→tail, local X swings fore/aft (+X = backward), local Z swings sideways**. Dog-local **+Z is forward** (Blender −Y; the Blender→glTF axis map is `(x, y, z) → (x, z, −y)`). `POSE_SONO` holds one X angle per bone; `SONO_QUEDA` drops the whole group so the belly meets the floor.
 
@@ -126,7 +129,7 @@ Eyes close by swapping the `Olho` mesh's material for a flat dark one matching `
 
 The dream is a DOM overlay (`#sonho`), an inline SVG thought bubble holding a hand-drawn roast chicken — no external image, keeping the single-file build intact. It is anchored to the `cabeca` bone each frame by `posicionaSonho()`, the same projection trick as the speech bubble.
 
-Any movement key, the bark key, or the love key calls `acorda()`; `C` does not, since the camera is passive.
+Any movement key, the bark key, or the love key calls `acorda()`; `C` does not, since the camera is passive. `atualizaHudSono()` swaps the `D` hint and the touch button between dormir/acordar — both name the action they perform, matching the camera button's convention.
 
 Google Analytics (`G-SPBGJ3H1EZ`) is loaded between `</head>` and `<body>`.
 
