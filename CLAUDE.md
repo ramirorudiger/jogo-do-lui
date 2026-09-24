@@ -103,9 +103,9 @@ Pure DOM/CSS over the canvas, theme-aware via `prefers-color-scheme` plus a `[da
 
 Everything that makes Lui talk goes through `say(texto, segundos, tipo)`, which sets the bubble text, starts `bubbleTimer`, and records `bubbleKind`. The loop re-anchors the bubble to the `cabeca` bone each frame via `posicionaBalao()` (clamped to the viewport so long lines don't run off-screen). `bubbleKind` matters: only `"latido"` makes the collar tag read "latindo", so greetings don't masquerade as barking.
 
-On first load the `#ask` card asks for the player's name and stores it under the `lui.nome` localStorage key; `receber()` runs when the GLB finishes and either greets a returning player (`Lui estava com saudade de X ❤️`) or opens the card. Names are trimmed and collapsed to a single space, capped at 20 chars, and an empty one is rejected. Every localStorage access is wrapped in try/catch — it throws on `file://` in Chrome and in some private modes, in which case the game just asks again next time.
+On first load the `#ask` card asks for the player's name and stores it under the `lui.nome` localStorage key (also kept in the `jogador` variable, so `amar()` still works when storage is blocked); `receber()` runs when the GLB finishes and either greets a returning player (`Lui estava com saudade de X ❤️`) or opens the card. Names are trimmed and collapsed to a single space, capped at 20 chars, and an empty one is rejected. Every localStorage access is wrapped in try/catch — it throws on `file://` in Chrome and in some private modes, in which case the game just asks again next time.
 
-While the card is open, `asking` is true and the keydown handler bails out early — without that, W/A/S/D would drive the dog instead of typing, and L/C would fire bark and camera. Clear the stored name with `localStorage.removeItem('lui.nome')`.
+Arrow keys move; letters are actions — `L` bark, `A` love (`amar()`, repeats the `Lui ❤️ X` greeting on demand, mirrored by the `#loveBtn` heart on touch), `C` camera. The WASD aliases were dropped when `A` was taken. While the card is open, `asking` is true and the keydown handler bails out early — without that, typing a name would fire bark, love and camera. Clear the stored name with `localStorage.removeItem('lui.nome')`.
 
 Google Analytics (`G-SPBGJ3H1EZ`) is loaded between `</head>` and `<body>`.
 

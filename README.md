@@ -15,6 +15,7 @@ Um joguinho 3D no navegador estrelado pelo **Lui**, um Shih Tzu preto e branco d
 | ↑ / ↓ | andar para frente / para trás |
 | ← / → | virar |
 | **L** | latir (com som e balãozinho) |
+| **A** | amar: aparece "Lui ❤️ [seu nome]" |
 | **C** | ver o Lui de frente ou de trás |
 
 No celular aparecem botões na tela. Tem também uma bolinha vermelha pela sala para ele empurrar.

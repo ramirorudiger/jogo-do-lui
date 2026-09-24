@@ -78,9 +78,9 @@
     padding: 10px 16px; border-radius: 16px;
     background: var(--hud-bg); border: 1px solid var(--hud-line);
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    font-size: 0.95rem; white-space: nowrap;
+    font-size: 0.95rem; flex-wrap: wrap; justify-content: center; max-width: min(94vw, 720px);
   }
-  .keys span.group { display: inline-flex; align-items: center; gap: 6px; }
+  .keys span.group { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
   kbd {
     display: inline-grid; place-items: center; min-width: 28px; height: 28px; padding: 0 6px;
     font: 600 0.9rem/1 "Fredoka", system-ui, sans-serif; color: var(--hud-ink);
@@ -88,6 +88,7 @@
     background: transparent;
   }
   kbd.l { background: var(--mustard); color: #2a2521; border-color: var(--mustard-deep); }
+  kbd.a { background: var(--dot-red); color: #fff5f4; border-color: #8f221d; }
 
   /* balão do latido */
   .bubble {
@@ -123,7 +124,7 @@
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     touch-action: none;
   }
-  .pad button.active, .bark.active { transform: translateY(2px); filter: brightness(0.92); }
+  .pad button.active, .bark.active, .love.active { transform: translateY(2px); filter: brightness(0.92); }
   .pad .up { grid-column: 2; grid-row: 1; }
   .pad .left { grid-column: 1; grid-row: 2; }
   .pad .down { grid-column: 2; grid-row: 2; }
@@ -138,6 +139,13 @@
       radial-gradient(circle at 24% 74%, var(--dot-blue) 0 4px, transparent 4.5px),
       var(--mustard);
     color: #2a2521; border: 2px solid var(--mustard-deep); font-size: 1.3rem;
+  }
+  .love {
+    position: fixed; right: 39px; bottom: calc(138px + env(safe-area-inset-bottom, 0px));
+    width: 62px; height: 62px; border-radius: 50%;
+    border: 2px solid #8f221d; background: var(--dot-red); color: #fff5f4;
+    font: 400 1.5rem/1 "Fredoka", system-ui, sans-serif;
+    touch-action: none;
   }
   .cam {
     position: fixed; right: 18px; top: calc(14px + env(safe-area-inset-top, 0px));
@@ -218,6 +226,7 @@
   <span class="group"><kbd>↑</kbd><kbd>↓</kbd> andar</span>
   <span class="group"><kbd>←</kbd><kbd>→</kbd> virar</span>
   <span class="group"><kbd class="l">L</kbd> latir</span>
+  <span class="group"><kbd class="a">A</kbd> amar</span>
   <span class="group"><kbd>C</kbd> câmera</span>
 </div>
 
@@ -229,6 +238,7 @@
     <button class="right" data-key="ArrowRight" aria-label="Virar para a direita">→</button>
   </div>
   <button class="bark" id="barkBtn" aria-label="Latir">Latir</button>
+  <button class="love" id="loveBtn" aria-label="Amar">❤️</button>
   <button class="cam" id="camBtn" aria-label="Trocar câmera">Ver de frente</button>
 </div>
 
@@ -642,6 +652,7 @@
 
   // ---------- quem está passeando com o Lui ----------
   const NOME_KEY = "lui.nome";
+  let jogador = "";                      // vale mesmo quando o localStorage não deixa gravar
   const ask = document.getElementById("ask");
   const askForm = document.getElementById("askForm");
   const askInput = document.getElementById("askInput");
@@ -673,6 +684,7 @@
       return;
     }
     guardaNome(nome);
+    jogador = nome;
     asking = false;
     ask.classList.add("gone");
     setTimeout(() => { ask.hidden = true; }, 300);
@@ -683,19 +695,27 @@
 
   // chamado quando o Lui termina de carregar
   function receber() {
-    const nome = nomeSalvo();
-    if (nome) say(`Lui estava com saudade de ${nome} ❤️`, 5, "oi");
+    jogador = nomeSalvo();
+    if (jogador) say(`Lui estava com saudade de ${jogador} ❤️`, 5, "oi");
     else perguntaNome();
+  }
+
+  // tecla A / coração na tela
+  function amar() {
+    if (!loaded || asking) return;
+    say(jogador ? `Lui ❤️ ${jogador}` : "Lui ❤️ você", 4, "amor");
   }
 
   // ---------- controles ----------
   const keys = new Set();
-  const MAP = { arrowup: "up", w: "up", arrowdown: "down", s: "down", arrowleft: "left", a: "left", arrowright: "right", d: "right" };
+  // setas andam, letras são ações (L latir, A amar, C câmera)
+  const MAP = { arrowup: "up", arrowdown: "down", arrowleft: "left", arrowright: "right" };
   window.addEventListener("keydown", (e) => {
     if (asking || e.target.tagName === "INPUT") return;   // deixa digitar o nome
     const k = e.key.toLowerCase();
     if (MAP[k]) { keys.add(MAP[k]); e.preventDefault(); ensureAudio(); }
     if (k === "l" && !e.repeat) { bark(); e.preventDefault(); }
+    if (k === "a" && !e.repeat) { amar(); e.preventDefault(); }
     if (k === "c" && !e.repeat) { toggleCam(); e.preventDefault(); }
   });
   window.addEventListener("keyup", (e) => { const k = e.key.toLowerCase(); if (MAP[k]) keys.delete(MAP[k]); });
@@ -714,6 +734,9 @@
   const barkBtn = document.getElementById("barkBtn");
   barkBtn.addEventListener("pointerdown", (e) => { e.preventDefault(); barkBtn.classList.add("active"); bark(); });
   ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => barkBtn.addEventListener(ev, () => barkBtn.classList.remove("active")));
+  const loveBtn = document.getElementById("loveBtn");
+  loveBtn.addEventListener("pointerdown", (e) => { e.preventDefault(); loveBtn.classList.add("active"); amar(); });
+  ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => loveBtn.addEventListener(ev, () => loveBtn.classList.remove("active")));
 
   // ---------- movimento ----------
   const state = { heading: 0.6, speed: 0, turn: 0 };
