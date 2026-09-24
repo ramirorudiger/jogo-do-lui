@@ -27,7 +27,9 @@ sed -n "1,$((N-1))p" index.html                  # HTML, CSS, HUD, analytics
 sed -n "$((N+1)),\$p" index.html                 # all game JS
 ```
 
-Edits to the JS are safe with normal string-replace edits as long as the match isn't on the GLB line. `git diff` on this file is unusable — the GLB shows up as context; review with `sed` ranges instead.
+Edits to the JS are safe with normal string-replace edits as long as the match isn't on the GLB line.
+
+To check a change visually, the reliable route is to serve the folder over HTTP and have the page POST its own canvas (`renderer.domElement.toDataURL()`, with `preserveDrawingBuffer: true` added in the throwaway copy) rather than `chrome --screenshot`, which hangs whenever the page has an infinite timer or CSS animation — `.sonho.on svg` has one. Note `Box3.setFromObject` ignores skinning, so it reports the bind pose and is useless for checking a posed dog. `git diff` on this file is unusable — the GLB shows up as context; review with `sed` ranges instead.
 
 ### Regenerating the model in Blender
 
@@ -105,7 +107,26 @@ Everything that makes Lui talk goes through `say(texto, segundos, tipo)`, which 
 
 On first load the `#ask` card asks for the player's name and stores it under the `lui.nome` localStorage key (also kept in the `jogador` variable, so `amar()` still works when storage is blocked); `receber()` runs when the GLB finishes and either greets a returning player (`Lui estava com saudade de X ❤️`) or opens the card. Names are trimmed and collapsed to a single space, capped at 20 chars, and an empty one is rejected. Every localStorage access is wrapped in try/catch — it throws on `file://` in Chrome and in some private modes, in which case the game just asks again next time.
 
-Arrow keys move; letters are actions — `L` bark, `A` love (`amar()`, repeats the `Lui ❤️ X` greeting on demand, mirrored by the `#loveBtn` heart on touch), `C` camera. The WASD aliases were dropped when `A` was taken. While the card is open, `asking` is true and the keydown handler bails out early — without that, typing a name would fire bark, love and camera. Clear the stored name with `localStorage.removeItem('lui.nome')`.
+Arrow keys move; letters are actions — `L` bark, `A` love (`amar()`, repeats the `Lui ❤️ X` greeting on demand), `D` sleep, `C` camera. Each action key has a matching touch button (`#loveBtn`, `#sleepBtn`). The WASD aliases were dropped when `A` was taken. While the card is open, `asking` is true and the keydown handler bails out early — without that, typing a name would fire bark, love and camera. Clear the stored name with `localStorage.removeItem('lui.nome')`.
+
+### Sleeping (`D`)
+
+The GLB carries no lying-down clip and re-exporting one is blocked by the `_FURLEN` gap above, so the pose is applied **procedurally**, and the order in `tick()` is the whole trick:
+
+```js
+mixer.update(dt);                                   // mixer writes every bone
+for (const o of ossosSono) o.b.quaternion.slerp(o.alvo, sono);   // then we overwrite
+```
+
+Posing before `mixer.update()` does nothing — the mixer restores bones toward their bind value whenever the cumulative action weight is below 1. `sono` eases 0→1 and doubles as the slerp factor, so the dog folds into the pose and back out; walk/idle weights are scaled by `1 - sono` and movement speed with them.
+
+Targets are built once at load as `restQuaternion × axisAngle(localX, angle)` — bone-local, matching how the Blender script poses bones. The axis convention was measured, not guessed: **bone local +Y runs head→tail, local X swings fore/aft (+X = backward), local Z swings sideways**. Dog-local **+Z is forward** (Blender −Y; the Blender→glTF axis map is `(x, y, z) → (x, z, −y)`). `POSE_SONO` holds one X angle per bone; `SONO_QUEDA` drops the whole group so the belly meets the floor.
+
+Eyes close by swapping the `Olho` mesh's material for a flat dark one matching `Palpebra` — there is no eyelid geometry to animate, and both eyes share one primitive so a single swap closes both.
+
+The dream is a DOM overlay (`#sonho`), an inline SVG thought bubble holding a hand-drawn roast chicken — no external image, keeping the single-file build intact. It is anchored to the `cabeca` bone each frame by `posicionaSonho()`, the same projection trick as the speech bubble.
+
+Any movement key, the bark key, or the love key calls `acorda()`; `C` does not, since the camera is passive.
 
 Google Analytics (`G-SPBGJ3H1EZ`) is loaded between `</head>` and `<body>`.
 

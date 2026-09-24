@@ -89,6 +89,7 @@
   }
   kbd.l { background: var(--mustard); color: #2a2521; border-color: var(--mustard-deep); }
   kbd.a { background: var(--dot-red); color: #fff5f4; border-color: #8f221d; }
+  kbd.d { background: var(--dot-blue); color: #f2f6ff; border-color: #17397c; }
 
   /* balão do latido */
   .bubble {
@@ -108,6 +109,19 @@
   }
   .bubble.on { opacity: 1; transform: translate(-50%, -100%) scale(1); }
 
+  /* balão de pensamento do sonho */
+  .sonho {
+    position: fixed; left: 0; top: 0; pointer-events: none;
+    transform-origin: 18% 96%;
+    transform: translate(-50%, -100%) scale(0.45); opacity: 0;
+    transition: opacity 240ms ease, transform 340ms cubic-bezier(.3,1.5,.5,1);
+  }
+  .sonho.on { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+  .sonho svg { display: block; width: 172px; height: auto; filter: drop-shadow(0 6px 12px rgba(42, 37, 33, 0.22)); }
+  .sonho.on svg { animation: flutua 3.6s ease-in-out infinite; }
+  @keyframes flutua { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+  @media (pointer: coarse) { .sonho svg { width: 132px; } }
+
   /* controles de toque */
   .touch { display: none; }
   @media (pointer: coarse) {
@@ -124,7 +138,7 @@
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     touch-action: none;
   }
-  .pad button.active, .bark.active, .love.active { transform: translateY(2px); filter: brightness(0.92); }
+  .pad button.active, .bark.active, .love.active, .sleep.active { transform: translateY(2px); filter: brightness(0.92); }
   .pad .up { grid-column: 2; grid-row: 1; }
   .pad .left { grid-column: 1; grid-row: 2; }
   .pad .down { grid-column: 2; grid-row: 2; }
@@ -145,6 +159,13 @@
     width: 62px; height: 62px; border-radius: 50%;
     border: 2px solid #8f221d; background: var(--dot-red); color: #fff5f4;
     font: 400 1.5rem/1 "Fredoka", system-ui, sans-serif;
+    touch-action: none;
+  }
+  .sleep {
+    position: fixed; right: 39px; bottom: calc(212px + env(safe-area-inset-bottom, 0px));
+    width: 62px; height: 62px; border-radius: 50%;
+    border: 2px solid #17397c; background: var(--dot-blue); color: #f2f6ff;
+    font: 400 1.35rem/1 "Fredoka", system-ui, sans-serif;
     touch-action: none;
   }
   .cam {
@@ -198,7 +219,8 @@
   .veil.gone { opacity: 0; pointer-events: none; }
   .veil p { margin: 0; font-size: 1.25rem; font-weight: 500; text-align: center; padding: 0 24px; max-width: 34ch; }
   @media (prefers-reduced-motion: reduce) {
-    .bubble, .veil, .ask { transition: none; }
+    .bubble, .veil, .ask, .sonho { transition: none; }
+    .sonho.on svg { animation: none; }
   }
 </style>
 </head>
@@ -227,6 +249,7 @@
   <span class="group"><kbd>←</kbd><kbd>→</kbd> virar</span>
   <span class="group"><kbd class="l">L</kbd> latir</span>
   <span class="group"><kbd class="a">A</kbd> amar</span>
+  <span class="group"><kbd class="d">D</kbd> dormir</span>
   <span class="group"><kbd>C</kbd> câmera</span>
 </div>
 
@@ -239,10 +262,57 @@
   </div>
   <button class="bark" id="barkBtn" aria-label="Latir">Latir</button>
   <button class="love" id="loveBtn" aria-label="Amar">❤️</button>
+  <button class="sleep" id="sleepBtn" aria-label="Dormir">💤</button>
   <button class="cam" id="camBtn" aria-label="Trocar câmera">Ver de frente</button>
 </div>
 
 <div class="bubble" id="bubble">Au! Au!</div>
+<div class="sonho" id="sonho" aria-hidden="true">
+<svg viewBox="0 0 184 150" role="img" aria-label="Balão de pensamento: o Lui sonhando com um frango assado">
+  <path d="M 173.4,51.1 A 14.7,14.7 0 0 1 173.7,76.0 A 17.0,17.0 0 0 1 155.3,98.2 A 21.2,21.2 0 0 1 122.4,112.5 A 23.6,23.6 0 0 1 82.6,115.7 A 22.8,22.8 0 0 1 44.9,107.0 A 19.3,19.3 0 0 1 17.9,88.5 A 15.4,15.4 0 0 1 8.0,64.4 A 15.3,15.3 0 0 1 17.3,40.2 A 19.1,19.1 0 0 1 43.7,21.5 A 22.7,22.7 0 0 1 81.2,12.4 A 23.6,23.6 0 0 1 121.1,15.2 A 21.3,21.3 0 0 1 154.4,29.2 A 17.1,17.1 0 0 1 173.4,51.1 Z" fill="#fffdf8" stroke="#2a2521" stroke-width="3.5" stroke-linejoin="round"/>
+  <g transform="translate(92,66) scale(0.78) translate(-92,-66)">
+    <!-- vapor -->
+    <g fill="none" stroke="#c9b9a2" stroke-width="3.6" stroke-linecap="round">
+      <path d="M64,34 C58,27 69,23 63,15"/>
+      <path d="M92,29 C86,22 97,18 91,10"/>
+      <path d="M120,34 C114,27 125,23 119,15"/>
+    </g>
+
+    <!-- travessa -->
+    <ellipse cx="92" cy="101" rx="58" ry="9.5" fill="#eef1f4" stroke="#2a2521" stroke-width="3"/>
+
+    <!-- folhas atrás -->
+    <g fill="#3f9440" stroke="#2a2521" stroke-width="2.6" stroke-linejoin="round">
+      <path d="M48,97 C36,97 29,91 34,86 C40,81 52,85 55,93 Z"/>
+      <path d="M136,97 C148,97 155,91 150,86 C144,81 132,85 129,93 Z"/>
+    </g>
+
+    <!-- coxa -->
+    <path d="M124,68 C119,51 129,33 142,29 C153,26 161,35 157,47 C152,60 138,70 128,71 Z"
+          fill="#dd9518" stroke="#2a2521" stroke-width="3.2" stroke-linejoin="round"/>
+    <!-- ossinho -->
+    <path d="M145,32 C138,23 146,12 156,15 C164,18 165,27 159,31 C166,35 164,46 155,44 C146,42 142,38 145,32 Z"
+          fill="#fdf8ee" stroke="#2a2521" stroke-width="3" stroke-linejoin="round"/>
+
+    <!-- corpo -->
+    <path d="M44,98 C27,93 23,69 34,54 C45,40 66,32 90,32 C117,32 137,44 143,62 C148,78 140,94 126,98 Z"
+          fill="#e9a21b" stroke="#2a2521" stroke-width="3.2" stroke-linejoin="round"/>
+
+    <!-- brilho -->
+    <ellipse cx="73" cy="50" rx="18" ry="8" fill="#f5c667" opacity=".95" transform="rotate(-17 73 50)"/>
+    <circle cx="101" cy="46" r="3.2" fill="#f7d493"/>
+    <circle cx="111" cy="53" r="2.4" fill="#f7d493"/>
+
+    <!-- folha e tomatinhos na frente -->
+    <path d="M108,99 C117,100 124,95 120,90 C115,86 107,90 105,95 Z"
+          fill="#4aa54a" stroke="#2a2521" stroke-width="2.6" stroke-linejoin="round"/>
+    <circle cx="57" cy="94" r="7" fill="#c8322b" stroke="#2a2521" stroke-width="2.8"/>
+    <circle cx="129" cy="95" r="6.2" fill="#c8322b" stroke="#2a2521" stroke-width="2.8"/>
+  </g>
+  <circle cx="44" cy="126" r="9" fill="#fffdf8" stroke="#2a2521" stroke-width="3"/>
+  <circle cx="24" cy="141" r="5.5" fill="#fffdf8" stroke="#2a2521" stroke-width="3"/>
+</svg>
+</div>
 <div class="veil" id="veil"><p id="veilText">Chamando o Lui…</p></div>
 
 <div class="ask" id="ask" hidden>
@@ -503,6 +573,20 @@
   const dog = new THREE.Group(); scene.add(dog);
   let mixer = null, actions = {}, headBone = null, loaded = false;
 
+  // ---------- pose de dormir ----------
+  // ângulos em torno do X local de cada osso (medido: +X joga a perna para trás)
+  const POSE_SONO = [
+    ["bracoL", -1.45], ["bracoR", -1.45],     // patas da frente esticadas para a frente
+    ["pata_fL", 0.40], ["pata_fR", 0.40],
+    ["coxaL", -1.22], ["coxaR", -1.22],       // patas de trás dobradas sob o corpo
+    ["pata_tL", 0.42], ["pata_tR", 0.42],
+    ["pescoco", 0.95], ["cabeca", -0.35],     // pescoço baixo e cabeça nivelada (queixo no chão)
+  ];
+  const SONO_QUEDA = 0.22;                     // o quanto o corpo desce até o chão
+  const ossosSono = [];
+  let dormindo = false, sono = 0, olhosFechados = false;
+  let olhos = null, olhoAberto = null, olhoFechado = null;
+
   function prepareClip(clip, keepOnly, drop) {
     const c = clip.clone();
     c.tracks = c.tracks.filter((tr) => {
@@ -537,7 +621,10 @@
             s.position.copy(o.position); s.quaternion.copy(o.quaternion); s.scale.copy(o.scale);
           }
         } else if (name === "Olho") {
-          o.material = new THREE.MeshPhysicalMaterial({ map: irisTexture(), roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.5 });
+          olhoAberto = new THREE.MeshPhysicalMaterial({ map: irisTexture(), roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.5 });
+          olhoFechado = new THREE.MeshStandardMaterial({ color: 0x0b0909, roughness: 0.65 });  // mesma cor da pálpebra
+          o.material = olhoAberto;
+          olhos = o;
         } else if (name === "Cornea") {
           o.visible = false;
         } else if (name === "Narina") {
@@ -557,6 +644,14 @@
         }
       });
       headBone = root.getObjectByName("cabeca");
+
+      // alvo de cada osso na pose de dormir (repouso × giro no eixo local X)
+      const eixoX = new THREE.Vector3(1, 0, 0);
+      POSE_SONO.forEach(([nome, ang]) => {
+        const b = root.getObjectByName(nome);
+        if (!b) return;
+        ossosSono.push({ b, alvo: b.quaternion.clone().multiply(new THREE.Quaternion().setFromAxisAngle(eixoX, ang)) });
+      });
 
       mixer = new THREE.AnimationMixer(root);
       const BARK = ["pescoco", "cabeca", "orelhaL", "orelhaR"];
@@ -706,6 +801,28 @@
     say(jogador ? `Lui ❤️ ${jogador}` : "Lui ❤️ você", 4, "amor");
   }
 
+  // ---------- dormir ----------
+  const sonho = document.getElementById("sonho");
+  let sonhoNaTela = false;
+
+  function dormir() {
+    if (!loaded || asking) return;
+    dormindo = !dormindo;
+    if (dormindo && bubbleTimer > 0) { bubbleTimer = 0; bubbleKind = ""; bubble.classList.remove("on"); }
+  }
+  function acorda() { dormindo = false; }
+
+  function posicionaSonho() {
+    if (!headBone) return;
+    headBone.getWorldPosition(headPos); headPos.y += 0.5;
+    headPos.project(camera);
+    const r = renderer.domElement.getBoundingClientRect();
+    const meio = sonho.offsetWidth / 2;
+    const x = (headPos.x * 0.5 + 0.5) * r.width + r.left + 92;
+    sonho.style.left = Math.max(r.left + meio + 8, Math.min(r.right - meio - 8, x)) + "px";
+    sonho.style.top = ((-headPos.y * 0.5 + 0.5) * r.height + r.top - 10) + "px";
+  }
+
   // ---------- controles ----------
   const keys = new Set();
   // setas andam, letras são ações (L latir, A amar, C câmera)
@@ -713,16 +830,17 @@
   window.addEventListener("keydown", (e) => {
     if (asking || e.target.tagName === "INPUT") return;   // deixa digitar o nome
     const k = e.key.toLowerCase();
-    if (MAP[k]) { keys.add(MAP[k]); e.preventDefault(); ensureAudio(); }
-    if (k === "l" && !e.repeat) { bark(); e.preventDefault(); }
-    if (k === "a" && !e.repeat) { amar(); e.preventDefault(); }
+    if (MAP[k]) { keys.add(MAP[k]); e.preventDefault(); ensureAudio(); acorda(); }
+    if (k === "l" && !e.repeat) { acorda(); bark(); e.preventDefault(); }
+    if (k === "a" && !e.repeat) { acorda(); amar(); e.preventDefault(); }
+    if (k === "d" && !e.repeat) { dormir(); e.preventDefault(); }
     if (k === "c" && !e.repeat) { toggleCam(); e.preventDefault(); }
   });
   window.addEventListener("keyup", (e) => { const k = e.key.toLowerCase(); if (MAP[k]) keys.delete(MAP[k]); });
   window.addEventListener("blur", () => keys.clear());
   document.querySelectorAll(".pad button").forEach((b) => {
     const dir = MAP[b.dataset.key.toLowerCase()];
-    const on = (e) => { e.preventDefault(); keys.add(dir); b.classList.add("active"); ensureAudio(); };
+    const on = (e) => { e.preventDefault(); keys.add(dir); b.classList.add("active"); ensureAudio(); acorda(); };
     const off = () => { keys.delete(dir); b.classList.remove("active"); };
     b.addEventListener("pointerdown", on);
     b.addEventListener("pointerup", off); b.addEventListener("pointerleave", off); b.addEventListener("pointercancel", off);
@@ -732,11 +850,14 @@
   function toggleCam() { camFront = !camFront; camBtn.textContent = camFront ? "Ver de trás" : "Ver de frente"; }
   camBtn.addEventListener("click", toggleCam);
   const barkBtn = document.getElementById("barkBtn");
-  barkBtn.addEventListener("pointerdown", (e) => { e.preventDefault(); barkBtn.classList.add("active"); bark(); });
+  barkBtn.addEventListener("pointerdown", (e) => { e.preventDefault(); barkBtn.classList.add("active"); acorda(); bark(); });
   ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => barkBtn.addEventListener(ev, () => barkBtn.classList.remove("active")));
   const loveBtn = document.getElementById("loveBtn");
-  loveBtn.addEventListener("pointerdown", (e) => { e.preventDefault(); loveBtn.classList.add("active"); amar(); });
+  loveBtn.addEventListener("pointerdown", (e) => { e.preventDefault(); loveBtn.classList.add("active"); acorda(); amar(); });
   ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => loveBtn.addEventListener(ev, () => loveBtn.classList.remove("active")));
+  const sleepBtn = document.getElementById("sleepBtn");
+  sleepBtn.addEventListener("pointerdown", (e) => { e.preventDefault(); sleepBtn.classList.add("active"); dormir(); });
+  ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => sleepBtn.addEventListener(ev, () => sleepBtn.classList.remove("active")));
 
   // ---------- movimento ----------
   const state = { heading: 0.6, speed: 0, turn: 0 };
@@ -765,11 +886,14 @@
   function tick() {
     const dt = Math.min(clock.getDelta(), 0.05);
     if (loaded) {
+      sono += ((dormindo ? 1 : 0) - sono) * Math.min(1, dt * 3.2);
+      if (sono < 0.002) sono = 0;
+      const acordado = 1 - sono;
       const fwd = (keys.has("up") ? 1 : 0) - (keys.has("down") ? 1 : 0);
       const trn = (keys.has("left") ? 1 : 0) - (keys.has("right") ? 1 : 0);
-      const target = fwd > 0 ? WALK_SPEED : fwd < 0 ? -BACK_SPEED : 0;
+      const target = (fwd > 0 ? WALK_SPEED : fwd < 0 ? -BACK_SPEED : 0) * acordado;
       state.speed += (target - state.speed) * Math.min(1, dt * 6);
-      state.turn += (trn * TURN_SPEED - state.turn) * Math.min(1, dt * 8);
+      state.turn += (trn * TURN_SPEED * acordado - state.turn) * Math.min(1, dt * 8);
       state.heading += state.turn * dt;
       dog.rotation.y = state.heading;
       const dir = new THREE.Vector3(Math.sin(state.heading), 0, Math.cos(state.heading));
@@ -808,18 +932,31 @@
 
       // animações: mistura parado/andando pela velocidade
       const moving = Math.min(1, Math.max(Math.abs(state.speed) / WALK_SPEED, Math.abs(state.turn) / TURN_SPEED * 0.8));
-      actions.walk.setEffectiveWeight(moving);
-      actions.idle.setEffectiveWeight(1 - moving);
+      actions.walk.setEffectiveWeight(moving * acordado);
+      actions.idle.setEffectiveWeight((1 - moving) * acordado);
       const ts = Math.max(Math.abs(state.speed) / WALK_SPEED, Math.abs(state.turn) / TURN_SPEED * 0.7) * 1.25;
       actions.walk.timeScale = state.speed < -0.05 ? -ts : Math.max(ts, 0.2);
       mixer.update(dt);
+
+      // a pose de dormir é aplicada DEPOIS do mixer, senão ele sobrescreve
+      if (sono > 0) {
+        for (let i = 0; i < ossosSono.length; i++) ossosSono[i].b.quaternion.slerp(ossosSono[i].alvo, sono);
+        dog.position.y = sono * (-SONO_QUEDA + 0.012 * Math.sin(clock.elapsedTime * 1.7));   // respirando
+      } else if (dog.position.y !== 0) dog.position.y = 0;
+      if (olhos) {
+        const fechar = sono > 0.45;
+        if (fechar !== olhosFechados) { olhosFechados = fechar; olhos.material = fechar ? olhoFechado : olhoAberto; }
+      }
+      const mostraSonho = sono > 0.4;
+      if (mostraSonho !== sonhoNaTela) { sonhoNaTela = mostraSonho; sonho.classList.toggle("on", mostraSonho); }
+      if (sonhoNaTela) posicionaSonho();
 
       if (bubbleTimer > 0) {
         bubbleTimer -= dt;
         if (bubbleTimer <= 0) { bubble.classList.remove("on"); bubbleKind = ""; }
         else posicionaBalao();
       }
-      setStatus(bubbleKind === "latido" ? "latindo" : Math.abs(state.speed) > 0.2 ? (state.speed > 0 ? "passeando" : "andando de ré") : Math.abs(state.turn) > 0.3 ? "dando uma voltinha" : barkCount ? `latiu ${barkCount} ${barkCount === 1 ? "vez" : "vezes"}` : "esperando você");
+      setStatus(sono > 0.3 ? "sonhando com frango" : bubbleKind === "latido" ? "latindo" : Math.abs(state.speed) > 0.2 ? (state.speed > 0 ? "passeando" : "andando de ré") : Math.abs(state.turn) > 0.3 ? "dando uma voltinha" : barkCount ? `latiu ${barkCount} ${barkCount === 1 ? "vez" : "vezes"}` : "esperando você");
 
       // câmera segue por trás
       const camAng = state.heading + (camFront ? Math.PI - 0.35 : 0.3);
