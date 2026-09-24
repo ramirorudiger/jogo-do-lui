@@ -27,7 +27,9 @@ No celular aparecem botões na tela. Tem também uma bolinha vermelha pela sala 
 2. *"Pareceu um bicho de pelúcia, ele é um cachorro de verdade. Aprimore para que se pareça com um cachorro Shih Tzu de verdade."*
 3. *"Deixe ele um pouco mais comprido e gordinho e retire um pouco dos cabelos dos olhos."*
 4. *"Me ajude a animar e criar um jogo básico com este modelo, onde o cachorro anda no cenário com as teclas de setas do teclado e late com a letra L."*
-
+5. *"É possível publicar no GitHub e que funcione na web, como na Vercel?"*
+6. *"Gere um README.md com os prompts e o passo a passo."*
+7. *"Vamos fazer melhorias no cachorro: pegue estas imagens de olhos de Shih Tzu e melhore os olhos e a feição do Lui."* (com 5 fotos de referência)
 
 ---
 
@@ -61,11 +63,31 @@ O jogo inteiro, com o modelo embutido, cabe num único `index.html`.
 
 **6. Publicação.** O `index.html` foi enviado para este repositório e publicado com o **GitHub Pages** (*Settings → Pages → Deploy from a branch → main / root*). O mesmo repositório também pode ser importado na Vercel sem nenhuma configuração.
 
+**7. Olhos e feição.** Com base nas fotos de referência de Shih Tzus, os olhos deixaram de ser "botões pretos". Cada olho agora tem:
+- globo ocular com pupila grande, íris castanho-escura com estrias e anel escuro, e um pouco da esclera nos cantos;
+- córnea transparente abaulada, que dá o brilho molhado e a profundidade;
+- pálpebras escuras de verdade, com abertura arredondada.
+
+O rosto também mudou:
+- o pelo da ponte do focinho cresce para cima, no padrão "crisântemo" típico da raça, e há tufos de sobrancelha;
+- o nariz ficou mais largo e achatado, com narinas visíveis;
+- apareceu o lábio escuro com os pelinhos acinzentados logo abaixo do nariz.
+
+Tudo foi levado também para a versão animada e para o jogo.
+
 ---
 
 ## Arquivos
 
 - `index.html`: o jogo completo, com o modelo 3D do Lui embutido
 - `screenshot.png`: o print acima
+- `blender/Lui_animado.blend`: o Lui com esqueleto, pelo e as animações *Andar*, *Parado* e *Latir*
+- `blender/Lui_realista.blend`: a cena de retrato realista, pronta para render (F12)
+- `blender/Lui.blend`: o primeiro modelo, estilizado
+- `blender/Lui_animado.glb`: o Lui animado em formato universal (Unity, Godot, sites 3D)
+- `blender/*.py`: os scripts que geram cada versão do zero no Blender (aba *Scripting* → *Run Script*)
+- `renders/`: as imagens renderizadas de cada etapa
+
+Os `.blend` do repositório vêm com menos fios de pelo (cerca de 50 mil), para caber no limite de upload do GitHub. Para a versão com pelo completo, rode o script correspondente no Blender: ele gera de 150 a 260 mil fios.
 
 Feito com ❤️ para o Lui.
